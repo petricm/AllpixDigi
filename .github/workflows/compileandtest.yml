@@ -3,15 +3,31 @@ name: CI
 on: [push]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
+  compileandtest:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        compiler: ["gcc","llvm"]
     steps:
     - uses: actions/checkout@v2
-    - name: Run a one-line script
-      run: echo Hello, world!
-    - name: Run a multi-line script
+    - name: Install CVMFS
       run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+        wget --no-check-certificate https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest_all.deb
+        sudo dpkg -i cvmfs-release-latest_all.deb
+        sudo apt-get update
+        sudo apt-get install cvmfs cvmfs-config-default
+        rm -f cvmfs-release-latest_all.deb
+        wget --no-check-certificate https://lcd-data.web.cern.ch/lcd-data/CernVM/default.local
+        sudo mkdir -p /etc/cvmfs
+        sudo mv default.local /etc/cvmfs/default.local
+        sudo /etc/init.d/autofs stop
+        sudo cvmfs_config setup
+        ls /cvmfs/clicdp.cern.ch
+    - name: Start container
+      run: |
+        ls /cvmfs/clicdp.cern.ch
+        docker run -it --name CI_container -v /home/runner/work/AllpixDigi/AllpixDigi:/Package -e COMPILER=${{ matrix.compiler }} -v /cvmfs/clicdp.cern.ch:/cvmfs/clicdp.cern.ch -d clicdp/slc6-build /bin/bash
+    - name: Start compilation
+      run: |
+        docker exec CI_container /bin/bash -c "ls /cvmfs/clicdp.cern.ch"
+        docker exec CI_container /bin/bash -c "./Package/.github/scripts/compile_and_test.sh"
