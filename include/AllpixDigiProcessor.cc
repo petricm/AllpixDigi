@@ -1,5 +1,5 @@
-#ifndef DDPlanarDigiProcessor_h
-#define DDPlanarDigiProcessor_h 1
+#ifndef AllpixDigiProcessor_h
+#define AllpixDigiProcessor_h 1
 
 #include "marlin/Processor.h"
 
@@ -23,7 +23,7 @@ namespace EVENT {
 }
 
 
-/** ======= DDPlanarDigiProcessor ========== <br>
+/** ======= AllpixDigiProcessor ========== <br>
  * Creates TrackerHits from SimTrackerHits, smearing them according to the input parameters. 
  * The positions of "digitized" TrackerHits are obtained by gaussian smearing positions
  * of SimTrackerHits perpendicular and along the ladder according to the specified point resolutions. 
@@ -53,14 +53,14 @@ namespace EVENT {
  * @author F.Gaede CERN/DESY, S. Aplin DESY
  * @date Dec 2014
  */
-class DDPlanarDigiProcessor : public Processor {
+class AllpixDigiProcessor : public Processor {
   
 public:
   
-  virtual Processor*  newProcessor() { return new DDPlanarDigiProcessor ; }
+  virtual Processor*  newProcessor() { return new AllpixDigiProcessor ; }
   
   
-  DDPlanarDigiProcessor() ;
+  AllpixDigiProcessor() ;
   
   /** Called at the begin of the job before anything is read.
    * Use to initialize the processor, e.g. book histograms.

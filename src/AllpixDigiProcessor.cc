@@ -1,5 +1,4 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-#include "DDPlanarDigiProcessor.h"
+#include "AllpixDigiProcessor.h"
 
 #include <EVENT/LCCollection.h>
 #include <IMPL/LCCollectionVec.h>
@@ -40,12 +39,12 @@ using namespace marlin ;
 using namespace std ;
 
 
-DDPlanarDigiProcessor aDDPlanarDigiProcessor ;
+AllpixDigiProcessor aAllpixDigiProcessor ;
 
-DDPlanarDigiProcessor::DDPlanarDigiProcessor() : Processor("DDPlanarDigiProcessor") {
+AllpixDigiProcessor::AllpixDigiProcessor() : Processor("AllpixDigiProcessor") {
   
   // modify processor description
-  _description = "DDPlanarDigiProcessor creates TrackerHits from SimTrackerHits, smearing them according to the input parameters."
+  _description = "AllpixDigiProcessor creates TrackerHits from SimTrackerHits, smearing them according to the input parameters."
     "The geoemtry of the surface is taken from the DDRec::Surface asscociated to the hit via the cellID" ;
   
   
@@ -124,7 +123,7 @@ enum {
   hSize 
 } ;
 
-void DDPlanarDigiProcessor::init() { 
+void AllpixDigiProcessor::init() {
   
   // usually a good idea to
   printParameters() ;
@@ -167,10 +166,10 @@ void DDPlanarDigiProcessor::init() {
     throw Exception( err.str() ) ;
   }
 
-  streamlog_out( DEBUG3 ) << " DDPlanarDigiProcessor::init(): found " << _map->size() 
+  streamlog_out( DEBUG3 ) << " AllpixDigiProcessor::init(): found " << _map->size()
                           << " surfaces for detector:" <<  _subDetName << std::endl ;
 
-  streamlog_out( MESSAGE ) << " *** DDPlanarDigiProcessor::init(): creating histograms" << std::endl ;
+  streamlog_out( MESSAGE ) << " *** AllpixDigiProcessor::init(): creating histograms" << std::endl ;
 
   AIDAProcessor::histogramFactory(this) ; //->createHistogram1D( "hMCPEnergy", "energy of the MCParticles", 100 ) ;
 
@@ -185,11 +184,11 @@ void DDPlanarDigiProcessor::init() {
 }
 
 
-void DDPlanarDigiProcessor::processRunHeader( LCRunHeader* ) {
+void AllpixDigiProcessor::processRunHeader( LCRunHeader* ) {
   ++_nRun ;
 } 
 
-void DDPlanarDigiProcessor::processEvent( LCEvent * evt ) { 
+void AllpixDigiProcessor::processEvent( LCEvent * evt ) {
 
   gsl_rng_set( _rng, Global::EVENTSEEDER->getSeed(this) ) ;   
   streamlog_out( DEBUG4 ) << "seed set to " << Global::EVENTSEEDER->getSeed(this) << std::endl;
@@ -252,11 +251,11 @@ void DDPlanarDigiProcessor::processEvent( LCEvent * evt ) {
 
       if( sI == _map->end() ){    
 
-        std::cout<< " DDPlanarDigiProcessor::processEvent(): no surface found for cellID : " 
+        std::cout<< " AllpixDigiProcessor::processEvent(): no surface found for cellID : "
                  <<   cellid_decoder( simTHit ).valueString() <<std::endl;
 
         
-        std::stringstream err ; err << " DDPlanarDigiProcessor::processEvent(): no surface found for cellID : " 
+        std::stringstream err ; err << " AllpixDigiProcessor::processEvent(): no surface found for cellID : "
                                     <<   cellid_decoder( simTHit ).valueString()  ;
         throw Exception ( err.str() ) ;
       }
@@ -475,12 +474,12 @@ void DDPlanarDigiProcessor::processEvent( LCEvent * evt ) {
 
 
 
-void DDPlanarDigiProcessor::check( LCEvent* ) {
+void AllpixDigiProcessor::check( LCEvent* ) {
   // nothing to check here - could be used to fill checkplots in reconstruction processor
 }
 
 
-void DDPlanarDigiProcessor::end(){ 
+void AllpixDigiProcessor::end(){
 
   gsl_rng_free( _rng );
   
