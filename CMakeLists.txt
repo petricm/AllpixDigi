@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.14 FATAL_ERROR)
 
 # project name
-PROJECT( AllpixDigi )
+PROJECT( AllpixDigiProcessor )
 
 # project version
 SET( ${PROJECT_NAME}_VERSION_MAJOR 0 )
