@@ -23,10 +23,12 @@ jobs:
         sudo /etc/init.d/autofs stop
         sudo cvmfs_config setup
         ls /cvmfs/clicdp.cern.ch
+        ls /cvmfs/sft.cern.ch
+        ls /cvmfs/geant4.cern.ch
     - name: Start container
       run: |
         ls /cvmfs/clicdp.cern.ch
-        docker run -it --name CI_container -v /home/runner/work/AllpixDigi/AllpixDigi:/Package -e COMPILER=${{ matrix.compiler }} -v /cvmfs/clicdp.cern.ch:/cvmfs/clicdp.cern.ch -d clicdp/slc6-build /bin/bash
+        docker run -it --name CI_container -v /home/runner/work/AllpixDigi/AllpixDigi:/Package -e COMPILER=${{ matrix.compiler }} -v /cvmfs/clicdp.cern.ch:/cvmfs/clicdp.cern.ch -v /cvmfs/sft.cern.ch:/cvmfs/sft.cern.ch -v /cvmfs/geant4.cern.ch:/cvmfs/geant4.cern.ch -d clicdp/slc6-build /bin/bash
     - name: Start compilation
       run: |
         docker exec CI_container /bin/bash -c "ls /cvmfs/clicdp.cern.ch"
