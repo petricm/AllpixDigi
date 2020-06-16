@@ -42,26 +42,26 @@ using namespace std ;
 AllpixDigiProcessor aAllpixDigiProcessor ;
 
 AllpixDigiProcessor::AllpixDigiProcessor() : Processor("AllpixDigiProcessor") {
-  
+
   // modify processor description
   _description = "AllpixDigiProcessor creates TrackerHits from SimTrackerHits, smearing them according to the input parameters."
     "The geoemtry of the surface is taken from the DDRec::Surface asscociated to the hit via the cellID" ;
-  
-  
+
+
   // register steering parameters: name, description, class-variable, default value
-  
+
   FloatVec resUEx ;
   resUEx.push_back( 0.0040 ) ;
-  
+
   registerProcessorParameter( "ResolutionU" ,
                               "resolution in direction of u - either one per layer or one for all layers "  ,
                               _resU ,
                               resUEx) ;
-  
+
   FloatVec resVEx ;
   resVEx.push_back( 0.0040 ) ;
 
-  registerProcessorParameter( "ResolutionV" , 
+  registerProcessorParameter( "ResolutionV" ,
                               "resolution in direction of v - either one per layer or one for all layers " ,
                              _resV ,
                               resVEx );
@@ -70,35 +70,35 @@ AllpixDigiProcessor::AllpixDigiProcessor() : Processor("AllpixDigiProcessor") {
                               "whether hits are 1D strip hits",
                               _isStrip,
                               bool(false) );
-  
-  
-  registerProcessorParameter( "SubDetectorName" , 
+
+
+  registerProcessorParameter( "SubDetectorName" ,
                              "Name of dub detector" ,
                              _subDetName ,
                               std::string("VXD") );
-    
+
   // Input collections
   registerInputCollection( LCIO::SIMTRACKERHIT,
-                          "SimTrackHitCollectionName" , 
+                          "SimTrackHitCollectionName" ,
                           "Name of the Input SimTrackerHit collection"  ,
                           _inColName ,
                           std::string("VXDCollection") ) ;
-  
-  
+
+
   // Output collections
   registerOutputCollection( LCIO::TRACKERHITPLANE,
-                           "TrackerHitCollectionName" , 
+                           "TrackerHitCollectionName" ,
                            "Name of the TrackerHit output collection"  ,
                            _outColName ,
                            std::string("VTXTrackerHits") ) ;
-  
+
   registerOutputCollection(LCIO::LCRELATION,
                            "SimTrkHitRelCollection",
                            "Name of TrackerHit SimTrackHit relation collection",
                            _outRelColName,
                            std::string("VTXTrackerHitRelations"));
-  
-  registerProcessorParameter( "ForceHitsOntoSurface" , 
+
+  registerProcessorParameter( "ForceHitsOntoSurface" ,
                               "Project hits onto the surface in case they are not yet on the surface (default: false)" ,
                               _forceHitsOntoSurface ,
                               bool(false) );
@@ -108,10 +108,10 @@ AllpixDigiProcessor::AllpixDigiProcessor() : Processor("AllpixDigiProcessor") {
                               _minEnergy,
                               double(0.0) );
 
-  
+
   // setup the list of supported detectors
-  
-  
+
+
 }
 
 enum {
@@ -120,17 +120,17 @@ enum {
   hitE,
   diffu,
   diffv,
-  hSize 
+  hSize
 } ;
 
 void AllpixDigiProcessor::init() {
-  
+
   // usually a good idea to
   printParameters() ;
-  
+
   _nRun = 0 ;
   _nEvt = 0 ;
-  
+
   // initialize gsl random generator
   _rng = gsl_rng_alloc(gsl_rng_ranlxs2);
 
@@ -139,11 +139,11 @@ void AllpixDigiProcessor::init() {
 
   Global::EVENTSEEDER->registerProcessor(this);
 
-  
+
   if( _resU.size() !=  _resV.size() ) {
-    
+
     std::stringstream ss ;
-    ss << name() << "::init() - Inconsistent number of resolutions given for U and V coordinate: " 
+    ss << name() << "::init() - Inconsistent number of resolutions given for U and V coordinate: "
        << "ResolutionU  :" <<   _resU.size() << " != ResolutionV : " <<  _resV.size() ;
 
     throw EVENT::Exception( ss.str() ) ;
@@ -160,8 +160,8 @@ void AllpixDigiProcessor::init() {
 
   _map = surfMan.map( det.name() ) ;
 
-  if( ! _map ) {   
-    std::stringstream err  ; err << " Could not find surface map for detector: " 
+  if( ! _map ) {
+    std::stringstream err  ; err << " Could not find surface map for detector: "
                                  << _subDetName << " in SurfaceManager " ;
     throw Exception( err.str() ) ;
   }
@@ -180,19 +180,19 @@ void AllpixDigiProcessor::init() {
   _h[ diffv ] = new TH1F( "diffv" , "diff v" , 1000, -5. , +5. );
 
   _h[ hitE ] = new TH1F( "hitE" , "hitEnergy in keV" , 1000, 0 , 200 );
-  
+
 }
 
 
 void AllpixDigiProcessor::processRunHeader( LCRunHeader* ) {
   ++_nRun ;
-} 
+}
 
 void AllpixDigiProcessor::processEvent( LCEvent * evt ) {
 
-  gsl_rng_set( _rng, Global::EVENTSEEDER->getSeed(this) ) ;   
+  gsl_rng_set( _rng, Global::EVENTSEEDER->getSeed(this) ) ;
   streamlog_out( DEBUG4 ) << "seed set to " << Global::EVENTSEEDER->getSeed(this) << std::endl;
-  
+
 
 
 
@@ -233,9 +233,9 @@ void AllpixDigiProcessor::check( LCEvent* ) {
 void AllpixDigiProcessor::end(){
 
   gsl_rng_free( _rng );
-  
-  streamlog_out(MESSAGE) << " end()  " << name() 
+
+  streamlog_out(MESSAGE) << " end()  " << name()
   << " processed " << _nEvt << " events in " << _nRun << " runs "
   << std::endl ;
-  
+
 }

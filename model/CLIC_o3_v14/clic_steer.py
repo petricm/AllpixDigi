@@ -61,10 +61,11 @@ SIM.vertexSigma = [0.0, 0.0, 0.0, 0.0]
 ################################################################################
 
 ##  set the default tracker action
-# SIM.action.tracker = "Geant4TrackerWeightedAction"
+#SIM.action.tracker = "Geant4TrackerWeightedAction"
 # HitPositionCombination: 2 -> set hit position between the step pre and post endpoint
 # CollectSingleDeposits: True -> each step is written out
 SIM.action.tracker=('Geant4TrackerWeightedAction', {'HitPositionCombination': 2, 'CollectSingleDeposits': True})
+
 ##  set the default calorimeter action
 SIM.action.calo = "Geant4ScintillatorCalorimeterAction"
 
