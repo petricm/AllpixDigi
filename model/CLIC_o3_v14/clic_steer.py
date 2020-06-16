@@ -113,13 +113,13 @@ SIM.field.stepper = "ClassicalRK4"
 SIM.filter.calo = "edep0"
 
 ##  list of filter objects: map between name and parameter dictionary
-SIM.filter.filters = {'edep0': {'parameter': {'Cut': 0.0}, 'name': 'EnergyDepositMinimumCut/Cut0'}, 'geantino': {'parameter': {}, 'name': 'GeantinoRejectFilter/GeantinoRejector'}, 'edep1kev': {'parameter': {'Cut': 0.001}, 'name': 'EnergyDepositMinimumCut'}}
+SIM.filter.filters = {'edep0': {'parameter': {'Cut': 0.0}, 'name': 'EnergyDepositMinimumCut/Cut0'}, 'geantino': {'parameter': {}, 'name': 'GeantinoRejectFilter/GeantinoRejector'}}
 
 ##  a map between patterns and filter objects, using patterns to attach filters to sensitive detector
 SIM.filter.mapDetFilter = {}
 
 ##  default filter for tracking sensitive detectors; this is applied if no other filter is used for a tracker
-SIM.filter.tracker = "edep1kev"
+SIM.filter.tracker = "edep0"
 
 
 ################################################################################

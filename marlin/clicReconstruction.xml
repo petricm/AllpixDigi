@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<marlin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ilcsoft.desy.de/marlin/marlin.xsd">
+  <constants>
+    <!-- Chose which BeamCalReco processor to run 380GeV or 3TeV -->
+    <constant name="BCReco" value="3TeV" />
+  </constants>
+  <execute>
+
+    <!-- ========== setup  ========== -->
+    <processor name="MyAIDAProcessor"/>
+    <processor name="EventNumber" />
+    <processor name="InitDD4hep"/>
+
+
+    <!-- ========== digitisation  ========== -->
+    <processor name="MyAllpixDigiProcessor"/>
+
+
+  </execute>
+
+
+  <global>
+    <parameter name="LCIOInputFiles">
+      /home/mpetric/AllpixDigi/testCLIC_o2_v04.slcio
+    </parameter>
+    <!-- Limit the number of processed records (run+evt): -->
+    <parameter name="MaxRecordNumber" value="-1" />
+    <parameter name="SkipNEvents" value="0" />
+    <parameter name="SupressCheck" value="false" />
+    <parameter name="Verbosity" options="DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT"> DEBUG4  </parameter>
+    <parameter name="RandomSeed" value="1234567890" />
+  </global>
+
+
+  <processor name="InitDD4hep" type="InitializeDD4hep">
+    <!--InitializeDD4hep reads a compact xml file and initializes the DD4hep::LCDD object-->
+    <!--Name of the DD4hep compact xml file to load-->
+    <parameter name="EncodingStringParameter"> GlobalTrackerReadoutID </parameter>
+    <parameter name="DD4hepXMLFile" type="string">
+      /home/mpetric/AllpixDigi/model/CLIC_o3_v14/CLIC_o3_v14.xml
+    </parameter>
+  </processor>
+
+
+
+    <processor name="MyAIDAProcessor" type="AIDAProcessor">
+      <!--Processor that handles AIDA files. Creates on directory per processor.  Processors only need to create and fill the histograms, clouds and tuples. Needs to be the first ActiveProcessor-->
+      <!-- compression of output file 0: false >0: true (default) -->
+      <parameter name="Compress" type="int" value="1"/>
+      <!-- filename without extension-->
+      <parameter name="FileName" type="string" value="histograms"/>
+      <!-- type of output file xml (default) or root ( only OpenScientist)-->
+      <parameter name="FileType" type="string" value="root "/>
+    </processor>
+
+
+    <processor name="EventNumber" type="Statusmonitor">
+      <parameter name="HowOften" type="int">1 </parameter>
+      <parameter name="Verbosity" type="string"> MESSAGE </parameter>
+    </processor>
+
+  <processor name="MyAllpixDigiProcessor" type="AllpixDigiProcessor">
+    <parameter name="SubDetectorName" type="string">Vertex</parameter>
+    <!--PlanarDigiProcessor creates TrackerHits from SimTrackerHits, smearing them according to the input parameters.-->
+    <!--whether hits are 1D strip hits-->
+    <parameter name="IsStrip" type="bool">false </parameter>
+    <!--resolution in direction of u-->
+    <parameter name="ResolutionU" type="float"> 0.003 0.003 0.003 0.003 0.003 0.003 </parameter>
+    <!--resolution in direction of v-->
+    <parameter name="ResolutionV" type="float"> 0.003 0.003 0.003 0.003 0.003 0.003  </parameter>
+    <!--Name of the Input SimTrackerHit collection-->
+    <parameter name="SimTrackHitCollectionName" type="string" lcioInType="SimTrackerHit">VertexBarrelCollection </parameter>
+    <!--Name of TrackerHit SimTrackHit relation collection-->
+    <parameter name="SimTrkHitRelCollection" type="string" lcioOutType="LCRelation">VXDTrackerHitRelations </parameter>
+    <!--Name of the TrackerHit output collection-->
+    <parameter name="TrackerHitCollectionName" type="string" lcioOutType="TrackerHitPlane">VXDTrackerHits </parameter>
+    <!--verbosity level of this processor ("DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT")-->
+    <parameter name="Verbosity" type="string">WARNING </parameter>
+  </processor>
+
+
+</marlin>

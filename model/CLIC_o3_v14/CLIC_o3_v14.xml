@@ -194,7 +194,7 @@
             <limit name="step_length_max" particles="*" value="5.0" unit="mm" />
         </limitset>
         <limitset name="allpix_digi_limit">
-            <limit name="step_length_max" particles="*" value="2.5" unit="micrometer" />
+            <limit name="step_length_max" particles="*" value="1" unit="micrometer" />
         </limitset>
     </limits>
     <regions>
