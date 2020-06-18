@@ -37,4 +37,6 @@ To achieve this three elements need to be configured
   ##  default filter for calorimeter sensitive detectors; this is applied if no other filter is used for a calorimeter
   SIM.filter.calo = "edep0"
   ```
-  Beware there is a default 1 keV energy cut in `ddsim` if you do not explicitly disable this as shown above. 
+  Beware there is a default 1 keV energy cut in `ddsim` if you do not explicitly disable this as shown above.
+
+**Caveat**: To create a electron-hole pair you need 3.62 eV, all the steps that are below this value are disregarded in the digitisation. If you setup a too low stepping there might be a disproportionate amount of such steps. You might wish to directly apply a filter in DD4hep/ddsim for 3.62 eV to minimise the amount of storage.
