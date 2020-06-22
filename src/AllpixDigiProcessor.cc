@@ -100,14 +100,6 @@ void AllpixDigiProcessor::init() {
 
   Global::EVENTSEEDER->registerProcessor(this);
 
-  if (_resU.size() != _resV.size()) {
-    std::stringstream ss;
-    ss << name() << "::init() - Inconsistent number of resolutions given for U and V coordinate: "
-       << "ResolutionU  :" << _resU.size() << " != ResolutionV : " << _resV.size();
-
-    throw EVENT::Exception(ss.str());
-  }
-
   dd4hep::Detector& theDetector = dd4hep::Detector::getInstance();
 
   //===========  get the surface map from the SurfaceManager ================
@@ -126,18 +118,6 @@ void AllpixDigiProcessor::init() {
 
   streamlog_out(DEBUG3) << " AllpixDigiProcessor::init(): found " << _map->size() << " surfaces for detector:" << _subDetName
                         << std::endl;
-
-  streamlog_out(MESSAGE) << " *** AllpixDigiProcessor::init(): creating histograms" << std::endl;
-
-  AIDAProcessor::histogramFactory(this);  //->createHistogram1D( "hMCPEnergy", "energy of the MCParticles", 100 ) ;
-
-  _h[hu] = new TH1F("hu", "smearing u", 50, -5., +5.);
-  _h[hv] = new TH1F("hv", "smearing v", 50, -5., +5.);
-
-  _h[diffu] = new TH1F("diffu", "diff u", 1000, -5., +5.);
-  _h[diffv] = new TH1F("diffv", "diff v", 1000, -5., +5.);
-
-  _h[hitE] = new TH1F("hitE", "hitEnergy in keV", 1000, 0, 200);
 }
 
 void AllpixDigiProcessor::processRunHeader(LCRunHeader*) { ++_nRun; }
@@ -176,15 +156,13 @@ void AllpixDigiProcessor::processEvent(LCEvent* evt) {
     for (int i = 0; i < nSimHits; ++i) {
       SimTrackerHit* simTHit = dynamic_cast<SimTrackerHit*>(STHcol->getElementAt(i));
 
-      _h[hitE]->Fill(simTHit->getEDep() * 1e6);
-
       if (simTHit->getEDep() < _minEnergy) {
         streamlog_out(DEBUG) << "Hit with insufficient energy " << simTHit->getEDep() * 1e6 << " keV" << std::endl;
         continue;
       }
 
       const int cellID0 = simTHit->getCellID0();
-
+      cout << "cell ID" << cellID0 <<endl;
       //***********************************************************
       // get the measurement surface for this hit using the CellID
       //***********************************************************
@@ -214,7 +192,7 @@ void AllpixDigiProcessor::processEvent(LCEvent* evt) {
       //************************************************************
 
       if (!surf->insideBounds(dd4hep::mm * oldPos)) {
-        streamlog_out(DEBUG3) << "  hit at " << oldPos << " " << cellid_decoder(simTHit).valueString()
+        cout << "  hit at " << oldPos << " " << cellid_decoder(simTHit).valueString()
                               << " is not on surface " << *surf << " distance: " << surf->distance(dd4hep::mm * oldPos)
                               << std::endl;
 
@@ -273,14 +251,6 @@ void AllpixDigiProcessor::processEvent(LCEvent* evt) {
                               << " uSmear: " << uSmear << " vSmear: " << vSmear << std::endl;
 
         if (surf->insideBounds(dd4hep::mm * newPosTmp)) {
-          accept_hit = true;
-          newPos     = newPosTmp;
-
-          _h[hu]->Fill(uSmear / resU);
-          _h[hv]->Fill(vSmear / resV);
-
-          _h[diffu]->Fill(uSmear);
-          _h[diffv]->Fill(vSmear);
 
           break;
 
