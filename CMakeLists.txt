@@ -30,6 +30,16 @@ FOREACH( FLAG ${COMPILER_FLAGS} )
   ENDIF()
 ENDFOREACH()
 
+# Set the clang-format version required by the CI for correct formatting:
+SET(CLANG_FORMAT_VERSION "10")
+
+FILE(GLOB_RECURSE
+     CHECK_CXX_SOURCE_FILES
+       src/*.cc include/*.h
+       scripts/*.C
+    )
+INCLUDE("cmake/clang-cpp-checks.cmake")
+
 
 FIND_PACKAGE( Marlin 1.0 REQUIRED ) # minimum required Marlin version
 INCLUDE_DIRECTORIES( SYSTEM ${Marlin_INCLUDE_DIRS} )

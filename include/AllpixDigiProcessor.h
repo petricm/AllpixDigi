@@ -5,9 +5,9 @@
 
 #include "lcio.h"
 
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 #include <gsl/gsl_rng.h>
 #include "DDRec/Surface.h"
@@ -15,13 +15,12 @@
 
 #include <TH1F.h>
 
-using namespace lcio ;
-using namespace marlin ;
+using namespace lcio;
+using namespace marlin;
 
 namespace EVENT {
   class SimTrackerHit;
 }
-
 
 /** ======= AllpixDigiProcessor ========== <br>
  * Creates TrackerHits from SimTrackerHits, smearing them according to the input parameters. 
@@ -54,67 +53,54 @@ namespace EVENT {
  * @date Dec 2014
  */
 class AllpixDigiProcessor : public Processor {
-  
 public:
-  
-  virtual Processor*  newProcessor() { return new AllpixDigiProcessor ; }
-  
-  
-  AllpixDigiProcessor() ;
-  
+  virtual Processor* newProcessor() { return new AllpixDigiProcessor; }
+
+  AllpixDigiProcessor();
+
   /** Called at the begin of the job before anything is read.
    * Use to initialize the processor, e.g. book histograms.
    */
-  virtual void init() ;
-  
+  virtual void init();
+
   /** Called for every run.
    */
-  virtual void processRunHeader( LCRunHeader* run ) ;
-  
+  virtual void processRunHeader(LCRunHeader* run);
+
   /** Called for every event - the working horse.
    */
-  virtual void processEvent( LCEvent * evt ) ; 
-  
-  
-  virtual void check( LCEvent * evt ) ; 
-  
-  
+  virtual void processEvent(LCEvent* evt);
+
+  virtual void check(LCEvent* evt);
+
   /** Called after data processing for clean up.
    */
-  virtual void end() ;
-  
-  
+  virtual void end();
 
-  
 protected:
-  
-  std::string _inColName ;
-  
-  std::string _outColName ;
-  std::string _outRelColName ;
- 
-  std::string _subDetName ;
-  
-  int _nRun ;
-  int _nEvt ;
-  
-  FloatVec _resU ;
-  FloatVec _resV ;
-  
+  std::string _inColName;
+
+  std::string _outColName;
+  std::string _outRelColName;
+
+  std::string _subDetName;
+
+  int _nRun;
+  int _nEvt;
+
+  FloatVec _resU;
+  FloatVec _resV;
+
   bool _isStrip;
-  
-  gsl_rng* _rng ;
-  
-  const dd4hep::rec::SurfaceMap* _map ;
 
-  bool _forceHitsOntoSurface  ;
-  double _minEnergy ;
+  gsl_rng* _rng;
 
-  std::vector<TH1F*> _h ;
-  
-} ;
+  const dd4hep::rec::SurfaceMap* _map;
+
+  bool   _forceHitsOntoSurface;
+  double _minEnergy;
+
+  std::vector<TH1F*> _h;
+};
 
 #endif
-
-
-
