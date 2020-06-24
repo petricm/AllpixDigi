@@ -23,13 +23,13 @@ namespace EVENT {
 }
 
 /** ======= AllpixDigiProcessor ========== <br>
- * Creates TrackerHits from SimTrackerHits, smearing them according to the input parameters. 
+ * Creates TrackerHits from SimTrackerHits, smearing them according to the input parameters.
  * The positions of "digitized" TrackerHits are obtained by gaussian smearing positions
- * of SimTrackerHits perpendicular and along the ladder according to the specified point resolutions. 
+ * of SimTrackerHits perpendicular and along the ladder according to the specified point resolutions.
  * The geometry of the surface is retreived from DDRec::Surface associated to the hit via cellID.
- * 
- * 
- * <h4>Input collections and prerequisites</h4> 
+ *
+ *
+ * <h4>Input collections and prerequisites</h4>
  * Processor requires a collection of SimTrackerHits <br>
  * <h4>Output</h4>
  * Processor produces collection of smeared TrackerHits<br>
@@ -48,7 +48,7 @@ namespace EVENT {
  * @param Sub_Detector_ID ID of Sub-Detector using UTIL/ILDConf.h from lcio <br>
  * (default value lcio::ILDDetID::VXD) <br>
  * <br>
- * 
+ *
  * @author F.Gaede CERN/DESY, S. Aplin DESY
  * @date Dec 2014
  */
@@ -77,6 +77,9 @@ public:
    */
   virtual void end();
 
+  virtual dd4hep::rec::Vector3D getPositionInSensor(SimTrackerHit* simTHit);
+  virtual dd4hep::rec::Vector3D getPositionInPixel(SimTrackerHit* simTHit);
+
 protected:
   std::string _inColName;
 
@@ -90,6 +93,8 @@ protected:
 
   FloatVec _resU;
   FloatVec _resV;
+
+  FloatVec _dimensionOfPixel;
 
   bool _isStrip;
 

@@ -1,5 +1,5 @@
-#include "AllpixDigiProcessor.h"
 
+#include "AllpixDigiProcessor.h"
 #include <EVENT/LCCollection.h>
 #include <EVENT/MCParticle.h>
 #include <EVENT/SimTrackerHit.h>
@@ -58,6 +58,9 @@ AllpixDigiProcessor::AllpixDigiProcessor() : Processor("AllpixDigiProcessor") {
 
   registerProcessorParameter("ResolutionV", "resolution in direction of v - either one per layer or one for all layers ",
                              _resV, resVEx);
+
+  registerProcessorParameter("PixelDimension", "Dimension of one pixel as given to AllPix^2", _dimensionOfPixel,
+                             FloatVec{0.025, 0.025, 0.050});
 
   registerProcessorParameter("IsStrip", "whether hits are 1D strip hits", _isStrip, bool(false));
 
@@ -162,11 +165,12 @@ void AllpixDigiProcessor::processEvent(LCEvent* evt) {
       }
 
       const int cellID0 = simTHit->getCellID0();
-      cout << "cell ID" << cellID0 <<endl;
+      cout << "cell ID" << cellID0 << endl;
+      cout << getPositionInPixel(simTHit);
       //***********************************************************
       // get the measurement surface for this hit using the CellID
       //***********************************************************
-
+      continue;
       dd4hep::rec::SurfaceMap::const_iterator sI = _map->find(cellID0);
 
       if (sI == _map->end()) {
@@ -192,9 +196,8 @@ void AllpixDigiProcessor::processEvent(LCEvent* evt) {
       //************************************************************
 
       if (!surf->insideBounds(dd4hep::mm * oldPos)) {
-        cout << "  hit at " << oldPos << " " << cellid_decoder(simTHit).valueString()
-                              << " is not on surface " << *surf << " distance: " << surf->distance(dd4hep::mm * oldPos)
-                              << std::endl;
+        cout << "  hit at " << oldPos << " " << cellid_decoder(simTHit).valueString() << " is not on surface " << *surf
+             << " distance: " << surf->distance(dd4hep::mm * oldPos) << std::endl;
 
         if (_forceHitsOntoSurface) {
           dd4hep::rec::Vector2D lv = surf->globalToLocal(dd4hep::mm * oldPos);
@@ -251,7 +254,6 @@ void AllpixDigiProcessor::processEvent(LCEvent* evt) {
                               << " uSmear: " << uSmear << " vSmear: " << vSmear << std::endl;
 
         if (surf->insideBounds(dd4hep::mm * newPosTmp)) {
-
           break;
 
         } else {
@@ -357,4 +359,41 @@ void AllpixDigiProcessor::end() {
 
   streamlog_out(MESSAGE) << " end()  " << name() << " processed " << _nEvt << " events in " << _nRun << " runs "
                          << std::endl;
+}
+
+dd4hep::rec::Vector3D AllpixDigiProcessor::getPositionInSensor(SimTrackerHit* simTHit) {
+  const int cellID0 = simTHit->getCellID0();
+
+  dd4hep::rec::SurfaceMap::const_iterator sI = _map->find(cellID0);
+
+  if (sI == _map->end()) {
+    std::stringstream err;
+    err << " AllpixDigiProcessor::processEvent(): no surface found for cellID : " << cellID0;
+    throw Exception(err.str());
+  }
+
+  const dd4hep::rec::ISurface* surf = sI->second;
+
+  // Move the possiton on the Surface
+  dd4hep::rec::Vector3D possition(simTHit->getPosition()[0], simTHit->getPosition()[1], simTHit->getPosition()[2]);
+  dd4hep::rec::Vector2D surfacePossition   = surf->globalToLocal(dd4hep::mm * possition);
+  dd4hep::rec::Vector3D positionsOnSurface = (1. / dd4hep::mm) * surf->localToGlobal(surfacePossition);
+
+  //displacement from surface, this is where exactly in the module the hit is
+  double zPossition = 0;
+  // check if the hit is above or below the surface
+  if (positionsOnSurface.r() > possition.r()) {
+    zPossition = (positionsOnSurface - possition).r();
+  } else {
+    zPossition = -1.0 * (positionsOnSurface - possition).r();
+  }
+
+  return dd4hep::rec::Vector3D{surfacePossition[0], surfacePossition[1], zPossition};
+}
+
+dd4hep::rec::Vector3D AllpixDigiProcessor::getPositionInPixel(SimTrackerHit* simTHit) {
+  dd4hep::rec::Vector3D sensorPossition = getPositionInSensor(simTHit);
+  return dd4hep::rec::Vector3D{fmod(sensorPossition[0], _dimensionOfPixel[0]) - _dimensionOfPixel[0] / 2.0,
+                               fmod(sensorPossition[1], _dimensionOfPixel[1]) - _dimensionOfPixel[1] / 2.0,
+                               sensorPossition[2]};
 }
