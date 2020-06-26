@@ -78,7 +78,8 @@ public:
   virtual void end();
 
   virtual dd4hep::rec::Vector3D getPositionInSensor(SimTrackerHit* simTHit);
-  virtual dd4hep::rec::Vector3D getPositionInPixel(SimTrackerHit* simTHit);
+  virtual dd4hep::rec::Vector3D getPositionInPixel(dd4hep::rec::Vector3D sensorPossition);
+  virtual std::vector<unsigned int> getBinForPossition(dd4hep::rec::Vector3D binPossition);
 
 protected:
   std::string _inColName;
@@ -95,6 +96,7 @@ protected:
   FloatVec _resV;
 
   FloatVec _dimensionOfPixel;
+  IntVec   _numberOfBinsInAllPixMap;
 
   bool _isStrip;
 

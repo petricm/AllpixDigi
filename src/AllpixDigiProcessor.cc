@@ -62,6 +62,9 @@ AllpixDigiProcessor::AllpixDigiProcessor() : Processor("AllpixDigiProcessor") {
   registerProcessorParameter("PixelDimension", "Dimension of one pixel as given to AllPix^2", _dimensionOfPixel,
                              FloatVec{0.025, 0.025, 0.050});
 
+  registerProcessorParameter("NumberOfBinsInAllPixMap", "Di", _numberOfBinsInAllPixMap,
+                              IntVec{10, 10, 10});
+
   registerProcessorParameter("IsStrip", "whether hits are 1D strip hits", _isStrip, bool(false));
 
   registerProcessorParameter("SubDetectorName", "Name of dub detector", _subDetName, std::string("VXD"));
@@ -166,7 +169,7 @@ void AllpixDigiProcessor::processEvent(LCEvent* evt) {
 
       const int cellID0 = simTHit->getCellID0();
       cout << "cell ID" << cellID0 << endl;
-      cout << getPositionInPixel(simTHit);
+      //cout << getPositionInPixel(simTHit);
       //***********************************************************
       // get the measurement surface for this hit using the CellID
       //***********************************************************
@@ -391,9 +394,12 @@ dd4hep::rec::Vector3D AllpixDigiProcessor::getPositionInSensor(SimTrackerHit* si
   return dd4hep::rec::Vector3D{surfacePossition[0], surfacePossition[1], zPossition};
 }
 
-dd4hep::rec::Vector3D AllpixDigiProcessor::getPositionInPixel(SimTrackerHit* simTHit) {
-  dd4hep::rec::Vector3D sensorPossition = getPositionInSensor(simTHit);
+dd4hep::rec::Vector3D AllpixDigiProcessor::getPositionInPixel(dd4hep::rec::Vector3D sensorPossition) {
   return dd4hep::rec::Vector3D{fmod(sensorPossition[0], _dimensionOfPixel[0]) - _dimensionOfPixel[0] / 2.0,
                                fmod(sensorPossition[1], _dimensionOfPixel[1]) - _dimensionOfPixel[1] / 2.0,
                                sensorPossition[2]};
+}
+
+std::vector<unsigned int> AllpixDigiProcessor::getBinForPossition(dd4hep::rec::Vector3D binPossition) {
+
 }
