@@ -18,9 +18,9 @@
 using namespace std;
 
 int test() {
-  gSystem->Load("/home/mpetric/allpix/lib/libAllpixObjects.so");
+  gSystem->Load("/cvmfs/clicdp.cern.ch/software/allpix-squared/1.5.0/x86_64-centos7-gcc8-opt/lib/libAllpixObjects.so");
 
-  TFile* file0                  = TFile::Open("conf/output/data.root");
+  TFile* file0                  = TFile::Open("../allpixconf/output/data.root");
   TTree* propagated_charge_tree = static_cast<TTree*>(file0->Get("PropagatedCharge"));
   TTree* deposited_charge_tree  = static_cast<TTree*>(file0->Get("DepositedCharge"));
   TTree* pixel_charge_tree      = static_cast<TTree*>(file0->Get("PixelCharge"));

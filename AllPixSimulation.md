@@ -51,3 +51,14 @@ $ allpix -c basic.conf
 |17:53:27.793|  (STATUS) Executed 6 instantiations in 4 seconds, spending 65% of time in slowest instantiation GeometryBuilderGeant4
 |17:53:27.794|  (STATUS) Average processing time is 4 ms/event, event generation at 244 Hz
 ```
+The execution has produces `output/data.root` when the information on the movement of charges is stored
+
+# Extraction of map
+the script `scripts/extractMap.C` extract from the allpix simulation the map that connect the position of the deposited charge to which pixel has fired. It's output in a file where an object of type `vector<vector<short>>`. The vector size is equal to the size of all voxels (N=n^3). Please take note that the scanning order is X,Y,Z. Each vector entry is a vector of dynamic size, representing to how many pixels the charge has drifted e.g.:
+```
+[100, 0, 0]
+[[20, -1, 0], [80, 0, 0]]
+```
+The first line represents a case where all the charge has drifted to the same pixel, and the second line represents a case where 20% has drifted to neighboring pixel that is moved for (-1,0) relative to the center of the original pixel and 80% remained in the same pixel.
+
+This information is then used in the `AllpixDigiProcessor` to calculate hit possitions.
