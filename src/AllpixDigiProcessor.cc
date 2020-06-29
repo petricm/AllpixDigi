@@ -395,11 +395,17 @@ dd4hep::rec::Vector3D AllpixDigiProcessor::getPositionInSensor(SimTrackerHit* si
 }
 
 dd4hep::rec::Vector3D AllpixDigiProcessor::getPositionInPixel(dd4hep::rec::Vector3D sensorPossition) {
-  return dd4hep::rec::Vector3D{fmod(sensorPossition[0], _dimensionOfPixel[0]) - _dimensionOfPixel[0] / 2.0,
-                               fmod(sensorPossition[1], _dimensionOfPixel[1]) - _dimensionOfPixel[1] / 2.0,
+  return dd4hep::rec::Vector3D{fmod(sensorPossition[0] - _dimensionOfPixel[0] / 2.0, _dimensionOfPixel[0]),
+                               fmod(sensorPossition[1] - _dimensionOfPixel[1] / 2.0, _dimensionOfPixel[1]),
                                sensorPossition[2]};
 }
 
-std::vector<unsigned int> AllpixDigiProcessor::getBinForPossition(dd4hep::rec::Vector3D binPossition) {
-
+unsigned int AllpixDigiProcessor::getBinForPossition(dd4hep::rec::Vector3D binPossition) {
+  double voxelX = _dimensionOfPixel[0]/(double)_numberOfBinsInAllPixMap[0];
+  double voxelY = _dimensionOfPixel[1]/(double)_numberOfBinsInAllPixMap[1];
+  double voxelZ = _dimensionOfPixel[2]/(double)_numberOfBinsInAllPixMap[2];
+  unsigned int binX = floor(binPossition[0]/voxelX+0.5);
+  unsigned int binY = floor(binPossition[1]/voxelY+0.5);
+  unsigned int binZ = floor(binPossition[2]/voxelZ+0.5);
+  return binX + _numberOfBinsInAllPixMap[1]*binY+ _numberOfBinsInAllPixMap[2]*binZ;
 }

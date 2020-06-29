@@ -79,7 +79,7 @@ public:
 
   virtual dd4hep::rec::Vector3D getPositionInSensor(SimTrackerHit* simTHit);
   virtual dd4hep::rec::Vector3D getPositionInPixel(dd4hep::rec::Vector3D sensorPossition);
-  virtual std::vector<unsigned int> getBinForPossition(dd4hep::rec::Vector3D binPossition);
+  virtual unsigned int getBinForPossition(dd4hep::rec::Vector3D binPossition);
 
 protected:
   std::string _inColName;
