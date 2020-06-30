@@ -62,8 +62,10 @@ AllpixDigiProcessor::AllpixDigiProcessor() : Processor("AllpixDigiProcessor") {
   registerProcessorParameter("PixelDimension", "Dimension of one pixel as given to AllPix^2", _dimensionOfPixel,
                              FloatVec{0.025, 0.025, 0.050});
 
-  registerProcessorParameter("NumberOfBinsInAllPixMap", "Di", _numberOfBinsInAllPixMap,
-                              IntVec{10, 10, 10});
+  registerProcessorParameter("NumberOfBinsInAllPixMap", "Dimension NxNxN of the allpix map", _numberOfBinsInAllPixMap,
+                             IntVec{10, 10, 10});
+
+  registerProcessorParameter("AllPix2Map", "location of the allpix^2 map", _allpixMapFile, std::string(""));
 
   registerProcessorParameter("IsStrip", "whether hits are 1D strip hits", _isStrip, bool(false));
 
@@ -107,6 +109,10 @@ void AllpixDigiProcessor::init() {
   Global::EVENTSEEDER->registerProcessor(this);
 
   dd4hep::Detector& theDetector = dd4hep::Detector::getInstance();
+
+  // read allpix map
+  _inFile = TFile::Open(_allpixMapFile.c_str(), "READ");
+  _inFile->GetObject("store", _allpixMap);  // I try to retrieve the vector
 
   //===========  get the surface map from the SurfaceManager ================
 
@@ -166,6 +172,7 @@ void AllpixDigiProcessor::processEvent(LCEvent* evt) {
         streamlog_out(DEBUG) << "Hit with insufficient energy " << simTHit->getEDep() * 1e6 << " keV" << std::endl;
         continue;
       }
+      propagateStepAddCollection(simTHit, trkhitVec, relCol);
 
       const int cellID0 = simTHit->getCellID0();
       cout << "cell ID" << cellID0 << endl;
@@ -359,7 +366,7 @@ void AllpixDigiProcessor::check(LCEvent*) {
 
 void AllpixDigiProcessor::end() {
   gsl_rng_free(_rng);
-
+  _inFile->Close();
   streamlog_out(MESSAGE) << " end()  " << name() << " processed " << _nEvt << " events in " << _nRun << " runs "
                          << std::endl;
 }
@@ -401,11 +408,14 @@ dd4hep::rec::Vector3D AllpixDigiProcessor::getPositionInPixel(dd4hep::rec::Vecto
 }
 
 unsigned int AllpixDigiProcessor::getBinForPossition(dd4hep::rec::Vector3D binPossition) {
-  double voxelX = _dimensionOfPixel[0]/(double)_numberOfBinsInAllPixMap[0];
-  double voxelY = _dimensionOfPixel[1]/(double)_numberOfBinsInAllPixMap[1];
-  double voxelZ = _dimensionOfPixel[2]/(double)_numberOfBinsInAllPixMap[2];
-  unsigned int binX = floor(binPossition[0]/voxelX+0.5);
-  unsigned int binY = floor(binPossition[1]/voxelY+0.5);
-  unsigned int binZ = floor(binPossition[2]/voxelZ+0.5);
-  return binX + _numberOfBinsInAllPixMap[1]*binY+ _numberOfBinsInAllPixMap[2]*binZ;
+  double       voxelX = _dimensionOfPixel[0] / (double)_numberOfBinsInAllPixMap[0];
+  double       voxelY = _dimensionOfPixel[1] / (double)_numberOfBinsInAllPixMap[1];
+  double       voxelZ = _dimensionOfPixel[2] / (double)_numberOfBinsInAllPixMap[2];
+  unsigned int binX   = floor(binPossition[0] / voxelX + 0.5);
+  unsigned int binY   = floor(binPossition[1] / voxelY + 0.5);
+  unsigned int binZ   = floor(binPossition[2] / voxelZ + 0.5);
+  return binX + _numberOfBinsInAllPixMap[1] * binY + _numberOfBinsInAllPixMap[2] * binZ;
 }
+
+void AllpixDigiProcessor::propagateStepAddCollection(SimTrackerHit* simTHit, LCCollectionVec* trkhitVec,
+                                                     LCCollectionVec* relCol) {}

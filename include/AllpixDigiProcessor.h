@@ -13,7 +13,10 @@
 #include "DDRec/Surface.h"
 #include "DDRec/SurfaceManager.h"
 
+#include <IMPL/LCCollectionVec.h>
+
 #include <TH1F.h>
+#include "TFile.h"
 
 using namespace lcio;
 using namespace marlin;
@@ -79,10 +82,14 @@ public:
 
   virtual dd4hep::rec::Vector3D getPositionInSensor(SimTrackerHit* simTHit);
   virtual dd4hep::rec::Vector3D getPositionInPixel(dd4hep::rec::Vector3D sensorPossition);
-  virtual unsigned int getBinForPossition(dd4hep::rec::Vector3D binPossition);
+  virtual unsigned int          getBinForPossition(dd4hep::rec::Vector3D binPossition);
+  virtual void propagateStepAddCollection(SimTrackerHit* simTHit, LCCollectionVec* trkhitVec, LCCollectionVec* relCol);
 
 protected:
+  TFile* _inFile;
+
   std::string _inColName;
+  std::string _allpixMapFile;
 
   std::string _outColName;
   std::string _outRelColName;
@@ -104,8 +111,9 @@ protected:
 
   const dd4hep::rec::SurfaceMap* _map;
 
-  bool   _forceHitsOntoSurface;
-  double _minEnergy;
+  bool                               _forceHitsOntoSurface;
+  double                             _minEnergy;
+  std::vector<std::vector<Short_t>>* _allpixMap;
 
   std::vector<TH1F*> _h;
 };
